@@ -1,4 +1,4 @@
-![Agenta](https://github.com/mamalisk/agenta/blob/master/readme/images/agenta_logo.png)
+![Agenta](https://raw.githubusercontent.com/mamalisk/agenta/master/readme/images/agenta_logo.png)
 
 a BDD, DSL-oriented automation framework using Yadda & WebDriver.io
 
