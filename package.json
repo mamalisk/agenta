@@ -1,17 +1,17 @@
 {
   "name": "agenta.js",
-  "version": "0.0.1",
-  "description" : "A BDD and DSL-oriented, scalable Acceptance Testing Framework using Yadda & Webdriver.io. Inspired by Mimik...",
+  "version": "0.0.3",
+  "description" : "A BDD and DSL-oriented, scalable Acceptance Testing Framework using Yadda & Webdriver.io.",
   "homepage": "http://agenta.io",
   "author" : "Kostas Mamalis <mamalis.kostas@gmail.com>",
   "contributors" : [],
   "repository" : {
     "type" : "git",
-    "url"  : "git://github.com/agenta/agenta.git"
+    "url"  : "git://github.com/mamalisk/agenta.git"
   },
   "main" : "./bin/agenta.js",
   "bugs" : {
-    "url" : "https://github.com/agenta/agenta/issues"
+    "url" : "https://github.com/mamalisk/agenta/issues"
   },
   "bin" : {
     "agenta.js" : "./bin/agenta.js"
@@ -19,7 +19,7 @@
   "license": [
     {
       "type": "MIT",
-      "url": "https://github.com/agenta/agenta/blob/master/LICENSE-MIT"
+      "url": "https://github.com/mamalisk/agenta/blob/master/LICENSE"
     }
   ],
   "dependencies": {
@@ -33,9 +33,7 @@
     "didyoumean": "~1.2.0",
     "webdriverio" : "^2.3.0",
     "winston": "~0.7.3",
-    "commander": "^2.3.0",
-    "object-mixin" : "~0.2.1",
-    "mixin" : "0.2.0"
+    "commander": "^2.3.0"
   },
   "devDependencies": {},
   "scripts" : {

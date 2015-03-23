@@ -4,8 +4,8 @@
 'use strict';
 
 var expect = require("chai").expect,
-    Agent = require('../lib/core/agent.js'),
-    Tools = require('../lib/core/tools.js');
+    Agent = require('../src/core/agent.js'),
+    Tools = require('../src/core/tools.js');
 
 
 describe('Tools', function () {

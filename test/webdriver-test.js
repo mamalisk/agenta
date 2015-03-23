@@ -5,28 +5,28 @@
 'use strict';
 
 var expect = require("chai").expect,
-    Agent = require('../lib/core/agent.js'),
-    Tools = require('../lib/core/tools.js'),
-    Web = require('../lib/webdriver/tool.js');
+    Agent = require('../src/core/agent.js'),
+    Tools = require('../src/core/tools.js'),
+    webDriver = {
+        click: function (element, callback) {
+            console.log(element.locator);
+            callback();
+        },
+        call: function (callback) {
+            callback();
+        }
+    },
+    Web = require('../src/webdriver/web.js').Web.withDriver(webDriver);
 
 describe('Web', function () {
     describe('#constructor', function () {
         it('should create ready web client.', function () {
 
-            var webDriver = {
-                click: function (element, callback) {
-                    console.log(element.locator);
-                    callback();
-                },
-                call: function (callback) {
-                    callback();
-                }
-            };
-            var web = new Web(webDriver);
-            expect(web).to.be.a('object');
-            expect(web).to.respondTo('clickOn');
+            expect(Web).to.be.a('object');
+            expect(Web).to.respondTo('clickOn');
             var element = {locator: '.locator', alias: 'test element'};
-            web.clickOn(element, function () {
+            var agent = Tools.equip(new Agent(), Web);
+            agent.clickOn(element, function () {
                 console.log('I am executed');
             });
         });
