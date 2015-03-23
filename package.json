@@ -1,0 +1,83 @@
+{
+  "name": "agenta.js",
+  "version": "0.0.1",
+  "description" : "A BDD and DSL-oriented, scalable Acceptance Testing Framework using Yadda & Webdriver.io. Inspired by Mimik...",
+  "homepage": "http://agenta.io",
+  "author" : "Kostas Mamalis <mamalis.kostas@gmail.com>",
+  "contributors" : [],
+  "repository" : {
+    "type" : "git",
+    "url"  : "git://github.com/agenta/agenta.git"
+  },
+  "main" : "./bin/agenta.js",
+  "bugs" : {
+    "url" : "https://github.com/agenta/agenta/issues"
+  },
+  "bin" : {
+    "agenta.js" : "./bin/agenta.js"
+  },
+  "license": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/agenta/agenta/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {
+    "yadda" : "^0.11.4",
+    "chai" : "~1.9.0",
+    "mocha": "~1.18.2",
+    "async" : "*",
+    "asyncawait" : "*",
+    "gulp" : "*",
+    "gulp-yadda-steps" : "*",
+    "didyoumean": "~1.2.0",
+    "webdriverio" : "^2.3.0",
+    "winston": "~0.7.3",
+    "commander": "^2.3.0",
+    "object-mixin" : "~0.2.1",
+    "mixin" : "0.2.0"
+  },
+  "devDependencies": {},
+  "scripts" : {
+    "test" : "mocha  --timeout 15000 --reporter spec yadda-webdriverio.js",
+    "yadda-debug" : "mocha debug --timeout 15000 --reporter spec spot-test.js",
+    "yadda" : "node bin/example.js"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "tags": [
+    "bdd",
+    "automation",
+    "end to end testing",
+    "gherkin",
+    "webdriver",
+    "cucumber",
+    "web",
+    "test",
+    "selenium",
+    "browser",
+    "javascript"
+  ],
+  "keywords": [
+    "agenta",
+    "yadda",
+    "webdriverio",
+    "webdriver",
+    "selenium",
+    "appium",
+    "saucelabs",
+    "sauce",
+    "labs",
+    "mocha",
+    "nodeUnit",
+    "buster",
+    "phantomjs",
+    "chai",
+    "vows",
+    "jasmine",
+    "assert",
+    "cucumber",
+    "testingbot"
+  ]
+}
