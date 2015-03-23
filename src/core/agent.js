@@ -3,14 +3,39 @@
  */
 'use strict';
 
+var winston = require('winston');
+
+
 var Agent = function(){
     var self = this;
     this.memory = {};
+
 };
 
-Agent.prototype.narrate =  function(message){
-    console.log(message);
+Agent.prototype.withLogger = function(Logger){
+    this.Logger = Logger;
+    return this;
+}
+
+Agent.prototype.narrate =  function(message, level){
+    if(this.Logger) {
+        if(level) {
+            this.Logger.log(level, message);
+        }
+        else {
+            this.Logger.info(message);
+        }
+    }
+    else {
+        if(level) {
+            console.log('[' + level + '] ' + message);
+        }
+        else {
+            console.log(message);
+        }
+    }
 };
+
 
 
 Agent.prototype.remember = function(key, object) {

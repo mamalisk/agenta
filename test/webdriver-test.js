@@ -21,7 +21,6 @@ var expect = require("chai").expect,
 describe('Web', function () {
     describe('#constructor', function () {
         it('should create ready web client.', function () {
-
             expect(Web).to.be.a('object');
             expect(Web).to.respondTo('clickOn');
             var element = {locator: '.locator', alias: 'test element'};
@@ -29,6 +28,10 @@ describe('Web', function () {
             agent.clickOn(element, function () {
                 console.log('I am executed');
             });
+            agent.remember('test',{ objectAttribute : 'objectValue'});
+            expect(agent.recall('test')).to.have.property('objectAttribute');
         });
-    });
+    })
+
+
 });
