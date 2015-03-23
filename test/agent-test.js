@@ -30,11 +30,13 @@ describe('Agent', function(){
     describe('#withLogger', function() {
         it('should log messages to console when not defined', function() {
             var agent = new Agent();
+            expect(agent.Logger).to.be.undefined
             agent.narrate('narrate to console');
             agent.narrate('narrate to console','error');
         });
         it('should log messages using winston when defined', function(){
             var agent = new Agent().withLogger(winston);
+            expect(agent.Logger).to.be.a('object');
             agent.narrate('narrate to winston');
             agent.narrate('narrate to winston','error');
         });
