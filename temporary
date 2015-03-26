@@ -1,0 +1,373 @@
+/**
+ * Created by kostasmamalis on 23/03/15.
+ */
+'use strict';
+var buildProto = require('../utils/buildProto'),
+	realPath   = require('../utils/realPath.js');
+
+var Agent = function(){
+	var self = this;
+	this.memory = {};
+};
+
+Agent.prototype.extendWith = function(locations, base){
+	if(!base) base = __dirname;
+	buildProto(Agent.prototype,locations.map(realPath(base)));
+};
+
+Agent.prototype.withLogger = function(Logger){
+	this.Logger = Logger;
+	return this;
+};
+
+Agent.prototype.narrate =  function(message, level){
+	if(this.Logger) {
+		if(level) {
+			this.Logger.log(level, message);
+		}
+		else {
+			this.Logger.info(message);
+		}
+	}
+	else {
+		if(level) {
+			console.log('[' + level + '] ' + message);
+		}
+		else {
+			console.log(message);
+		}
+	}
+};
+
+Agent.prototype.remember = function(key, object) {
+	this.memory[key] = object;
+}
+
+Agent.prototype.recall = function(key) {
+	if(key in this.memory) {
+		console.log('found key: ' + key);
+		return this.memory[key];
+	} else {
+		throw Error('unknown key ' + key);
+	}
+}
+
+
+module.exports = Agent;
+
+//utils
+
+/* buildProto.js */
+module.exports = buildProto;
+
+function buildProto(proto, dirs) {
+    return dirs.reduce(extendProto, proto);
+}
+
+function extendProto(proto, dir) {
+    var fs = require('fs');
+    var realPath = require('./realPath.js');
+
+    return fs
+        .readdirSync(dir)
+        .map(realPath(dir))
+        .map(require)
+        .reduce(findFunction, proto);
+}
+
+function findFunction(proto, fn) {
+    proto[fn.name] = fn;
+    return proto;
+}
+
+/* real path */
+module.exports = function realPath(base) {
+    var path = require('path');
+
+    return function(file) {
+        return path.join(base, file);
+    };
+};
+
+//webdriver/missions
+
+module.exports = function clickOn(element, callback) {
+    var webdriver = this.webDriver;
+    var self = this;
+
+    webdriver.click(element.locator, function (err, res) {
+        self.Logger.info('Clicking on ' + element.locator);
+        if (err) {
+            self.Logger.error('error!');
+            throw new Error('unable to click on' + element.alias);
+        }
+    });
+    if(callback) {
+        callback();
+    }
+
+};
+
+module.exports = function fillIn(element, value, callback){
+        this.Logger.info('filling in ' + element.locator + ' with ' + value);
+        this.webDriver.setValue(element.locator, value);
+        if(callback){
+            callback();
+        }
+};
+
+module.exports = function getDriver(){
+    return this.webDriver;
+}
+
+module.exports = function navigateTo(url, callback){
+    this.Logger.info('Navigating to ' + url);
+    this.webDriver.url(url);
+    if(callback){
+        callback();
+    };
+};
+
+module.exports = function setDriver(webDriver){
+    this.webDriver = webDriver;
+};
+
+// add is driver set
+
+// Screen
+
+var Screen = function (name, screenElementsArray, screensArray) {
+	this.self = this;
+	this.name = name;
+	this.url = "/";
+	if(screenElementsArray){
+		for(var i in screenElementsArray){
+			this[screenElementsArray[i].alias] = screenElementsArray[i];
+		}
+	}
+
+	if(screensArray) {
+		for (var j in screensArray) {
+			this[screensArray[j].name] = screensArray[j];
+		}
+	}
+};
+
+Screen.prototype.withScreenElement = function(screenElement) {
+	this[screenElement.alias] = screenElement;
+	return this;
+};
+
+Screen.prototype.withSubScreen = function(screen) {
+	this[screen.name] = screen;
+	return this;
+};
+
+Screen.prototype.element = function(screenAlias){
+	return this.screenElements[screenAlias];
+};
+
+Screen.prototype.subScreen = function(screenAlias){
+	return this[screenAlias];
+}
+
+
+Screen.prototype.withUrl = function(url) { this.url = url; return this; }
+
+
+module.exports = Screen;
+
+// ScreenElement
+
+'use strict';
+
+var ScreenElement = function(alias, locator){
+	this.locator = locator;
+	this.alias = alias;
+	this.defaultValue = "";
+}
+
+ScreenElement.prototype.withDefaultValue = function(defaultValue) { this.defaultValue = defaultValue; return this; }
+
+exports = module.exports = ScreenElement;
+
+// package.json
+
+"dependencies": {
+	"yadda" : "^0.11.4",
+	"chai" : "~1.9.0",
+	"mocha": "~1.18.2",
+	"async" : "*",
+	"asyncawait" : "*",
+	"gulp" : "*",
+	"gulp-yadda-steps" : "*",
+	"didyoumean": "~1.2.0",
+	"webdriverio" : "^2.3.0",
+	"winston": "~0.7.3",
+	"commander": "^2.3.0",
+	"chainit" : "~2.1.1"
+  },
+  "devDependencies": {
+	"glob": "~3.2.7",
+	"jshint": "~2.5.1",
+	"mock-utf8-stream": "~0.1.1",
+	"proxyquire": "^1.0.1"
+  },
+  
+  // proto-test --> add to agent test.
+  
+  var Agent = require('../src/core/agent.js'),
+    Tools = require('../src/core/tools.js'),
+    ScreenElement = require('../src/webdriver/screenElement.js'),
+    winston = require('winston');
+
+describe('Agent with Proto',function(){
+   describe('buildProto',function(){
+      before('start',function(){
+          new Agent().extendWith(['../webdriver/missions']);
+      });
+
+       it('should allow me to use clickAndWait', function(done){
+           var webDriver = {
+                   click: function (element, callback) {
+                       console.log(element.locator);
+                       if(callback) callback();
+
+                   },
+                   call: function (callback) {
+                       if(callback) callback();
+
+                   },
+                   setValue : function(element, value, callback){
+                       return this;
+                   },
+                   url : function(url, callback){
+                       return this;
+                   }
+               };
+           var agent = new Agent();
+           agent.withLogger(winston);
+           agent.setDriver(webDriver);
+           var myElement = new ScreenElement('my element', '.locator');
+           agent.navigateTo('http://www.google.co.uk');
+           agent.clickOn(myElement);
+           agent.fillIn(myElement,'test',done);
+       });
+
+   });
+});
+
+// screen test
+
+/**
+ * Created by 43841802 on 25/03/2015.
+ */
+'use strict';
+
+var expect = require("chai").expect,
+    Screen = require('../src/webdriver/screen.js'),
+    ScreenElement = require('../src/webdriver/screenElement.js');
+
+describe("Screen", function () {
+    describe('#constructor without elements', function () {
+        it('should create an empty screen', function(){
+            var myScreen = new Screen('my screen');
+            expect(myScreen.name).to.be.equal('my screen');
+            expect(myScreen.url).to.be.equal('/');
+        });
+    });
+
+    describe('#constructor with elements', function () {
+       it('should instantiate with elements', function(){
+           var screenElementOne = new ScreenElement('myElement1', '#personal_id_1');
+           var screenElementTwo = new ScreenElement('myElement2', '#personal_id_2');
+           var myScreen = new Screen('my screen', [screenElementOne, screenElementTwo]);
+           expect(myScreen.name).to.be.equal('my screen');
+           expect(myScreen.myElement1.locator).to.be.equal('#personal_id_1');
+           expect(myScreen.myElement2.locator).to.be.equal('#personal_id_2');
+
+       })
+    });
+
+    describe('#constructor with subScreens', function() {
+       it('should instantiate with subscreens and then easily refer to elements', function(){
+           var topMenu = new Screen("topMenu", [new ScreenElement('mainMenu','.mainMenu')]);
+           var footer = new Screen('footer', [new ScreenElement('addresses', '.contactUs'), new ScreenElement('copyright','.copy')]);
+           var mainScreen = new Screen("main Screen",[],[topMenu, footer]);
+           expect(mainScreen.topMenu).to.not.be.empty;
+           expect(mainScreen.topMenu.mainMenu.locator).to.be.equal('.mainMenu');
+           expect(mainScreen.footer.copyright.locator).to.be.equal('.copy');
+       })
+    });
+
+    describe('#withUrl', function () {
+       it('should set the url',function(){
+           var myScreen = new Screen('my screen');
+           expect(myScreen.url).to.be.equal('/');
+           myScreen = myScreen.withUrl('http://www.google.co.uk');
+           expect(myScreen.url).to.be.equal('http://www.google.co.uk');
+       })
+    });
+
+    describe('#withScreenElement', function() {
+       it('should set/reset an element', function(){
+           var screenElementOne = new ScreenElement('myElement1', '#personal_id_1');
+           var screenElementTwo = new ScreenElement('myElement2', '#personal_id_2');
+           var myScreen = new Screen('my screen', [screenElementOne, screenElementTwo]);
+           expect(myScreen.name).to.be.equal('my screen');
+           expect(myScreen['myElement1'].locator).to.be.equal('#personal_id_1');
+           expect(myScreen.myElement2.locator).to.be.equal('#personal_id_2');
+           myScreen = myScreen.withScreenElement(new ScreenElement('myElement1', '#personal_new_id_1')).withScreenElement(new ScreenElement('myElement3', '#personal_id_3'));
+           expect(myScreen.myElement1.locator).to.be.equal('#personal_new_id_1');
+           expect(myScreen.myElement2.locator).to.be.equal('#personal_id_2');
+           expect(myScreen.myElement3.locator).to.be.equal('#personal_id_3');
+       });
+    });
+
+    describe('#withSubScreen', function() {
+        it('should add a subscreens and then easily refer to elements', function(){
+            var topMenu = new Screen("topMenu", [new ScreenElement('mainMenu','.mainMenu')]);
+            var footer = new Screen('footer', [new ScreenElement('addresses', '.contactUs'), new ScreenElement('copyright','.copy')]);
+            var mainScreen = new Screen("main Screen").withSubScreen(topMenu).withSubScreen(footer);
+            expect(mainScreen.topMenu).to.not.be.empty;
+            expect(mainScreen.topMenu.mainMenu.locator).to.be.equal('.mainMenu');
+            expect(mainScreen.footer.copyright.locator).to.be.equal('.copy');
+        })
+    });
+});
+
+test/integration/integration.js
+
+/**
+ * Created by kostasmamalis on 23/03/15.
+ */
+
+'use strict';
+
+var Agent = require('../../src/core/agent.js'),
+    logger = require('winston'),
+    webDriver = require('webdriverio').remote({ desiredCapabilities: {browserName: 'chrome'} }),
+    Web = require('../../src/webdriver/web.js').Web,
+    Screen = require('../../src/webdriver/screen.js'),
+    ScreenElement = require('../../src/webdriver/screenElement.js');
+
+describe('RealWeb', function () {
+
+    describe('#constructor', function () {
+        it('should create ready web client.', function (done) {
+            webDriver.init(function(){});
+            var agent = new Agent().withLogger(logger);
+            agent.extendWith(['../webdriver/missions']);
+            agent.setDriver(webDriver);
+            var searchBox = new ScreenElement('searchBox','#lst-ib');
+            var googleMain = new Screen('Google',[searchBox]).withUrl('http://www.google.co.uk');
+            agent.navigateTo(googleMain.url);
+            agent.fillIn(googleMain.searchBox,'test');
+            webDriver.end(done);
+        });
+    })
+
+
+});
+
+
