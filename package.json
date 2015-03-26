@@ -1,6 +1,6 @@
 {
   "name": "agenta.js",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description" : "A BDD and DSL-oriented, scalable Acceptance Testing Framework using Yadda & Webdriver.io.",
   "homepage": "http://agenta.io",
   "author" : "Kostas Mamalis <mamalis.kostas@gmail.com>",
@@ -9,7 +9,7 @@
     "type" : "git",
     "url"  : "git://github.com/mamalisk/agenta.git"
   },
-  "main" : "./bin/agenta.js",
+  "main" : ".index.js",
   "bugs" : {
     "url" : "https://github.com/mamalisk/agenta/issues"
   },
