@@ -1,21 +1,20 @@
-/**
- * Created by kostasmamalis on 23/03/15.
- */
-'use strict';
-
-var winston = require('winston');
-
+var buildProto = require('../utils/buildProto'),
+    realPath   = require('../utils/realPath.js');
 
 var Agent = function(){
     var self = this;
     this.memory = {};
+};
 
+Agent.prototype.extendWith = function(locations, base){
+    if(!base) base = __dirname;
+    buildProto(Agent.prototype,locations.map(realPath(base)));
 };
 
 Agent.prototype.withLogger = function(Logger){
     this.Logger = Logger;
     return this;
-}
+};
 
 Agent.prototype.narrate =  function(message, level){
     if(this.Logger) {
@@ -35,8 +34,6 @@ Agent.prototype.narrate =  function(message, level){
         }
     }
 };
-
-
 
 Agent.prototype.remember = function(key, object) {
     this.memory[key] = object;

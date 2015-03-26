@@ -1,6 +1,6 @@
 {
   "name": "agenta.js",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description" : "A BDD and DSL-oriented, scalable Acceptance Testing Framework using Yadda & Webdriver.io.",
   "homepage": "http://agenta.io",
   "author" : "Kostas Mamalis <mamalis.kostas@gmail.com>",
@@ -33,11 +33,18 @@
     "didyoumean": "~1.2.0",
     "webdriverio" : "^2.3.0",
     "winston": "~0.7.3",
-    "commander": "^2.3.0"
+    "commander": "^2.3.0",
+    "chainit" : "~2.1.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "glob": "~3.2.7",
+    "jshint": "~2.5.1",
+    "mock-utf8-stream": "~0.1.1",
+    "proxyquire": "^1.0.1"
+  },
   "scripts" : {
-    "test" : "mocha  --timeout 15000 --reporter spec yadda-webdriverio.js",
+    "test" : "mocha",
+    "integration" : "mocha  --timeout 15000 --reporter spec test/integration/*.js",
     "yadda-debug" : "mocha debug --timeout 15000 --reporter spec spot-test.js",
     "yadda" : "node bin/example.js"
   },
