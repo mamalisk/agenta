@@ -1,0 +1,102 @@
+/* jslint node: true */
+/* global before, afterEach, after, featureFile, scenarios, steps */
+
+module.exports = function AgentaExecutor(featuresLocation, stepDefinitionsLocation, reportsOutputLocation, extendedMissionsLocations, configurationLocation) {
+
+    "use strict";
+    var Yadda = require('yadda');
+    Yadda.plugins.mocha.StepLevelPlugin.init();
+
+    var webdriver = require('webdriverio');
+    var library = require(stepDefinitionsLocation);
+    var AgentJS = require('agenta.js').Agent;
+    var winston = require('winston');
+
+    var scriptsHelper = require('./steps/waitScriptsHelper.js');
+    var webDriver;
+    var context;
+    var agentaJs = new AgentJS();
+    var AgentConfiguration = require('./utils/config.js');
+    var config = new AgentConfiguration(configurationLocation).get();
+    var tools = config.get('tools');
+    var webDriverConfig = tools[0].config;
+    var _ = require('underscore');
+
+    agentaJs.extendWith(extendedMissionsLocations, __dirname);
+
+    var YaddaHtml = require('./reporter/yadda-html-reporter');
+    var YaddaHtmlRep = new YaddaHtml(reportsOutputLocation);
+
+
+    var foundFeatureFilesNumber = new Yadda.FeatureFileSearch(featuresLocation).list().length;
+
+    console.log(foundFeatureFilesNumber + ' feature files found');
+
+
+    new Yadda.FeatureFileSearch(featuresLocation).each(function (file) {
+
+
+        featureFile(file, function (feature) {
+            YaddaHtmlRep.onFeature(feature);
+
+            before(function (done) {
+                YaddaHtmlRep.onBefore();
+                agentaJs.extendWith(['../webdriver/missions']);
+                if (!webDriver) {
+                    webDriver = webDriver || webdriver.remote(webDriverConfig);
+                    webDriver.init();
+                }
+                scriptsHelper.applyAll(webDriver);
+                agentaJs.setDriver(webDriver);
+                agentaJs.withLogger(winston);
+                context = {
+                    evolveFxUser: agentaJs
+                };
+                done();
+            });
+
+            beforeEach(function () {
+                YaddaHtmlRep.onBeforeEach();
+            });
+
+
+            var yadda = new Yadda.Yadda(library, context);
+            scenarios(feature.scenarios, function (scenario) {
+                steps(scenario.steps, function (step, done) {
+                    YaddaHtmlRep.onStep(scenario);
+                    yadda.run(step, context, done);
+                });
+            });
+
+            afterEach(function () {
+                takeScreenshotOnFailure(this.currentTest);
+                YaddaHtmlRep.onAfterEach(this.currentTest);
+            });
+
+            after(function (done) {
+                YaddaHtmlRep.onAfter();
+                if (YaddaHtmlRep.executedFeatures == foundFeatureFilesNumber) {
+                    console.log('killing browser');
+                    webDriver.end(done);
+                } else {
+                    done();
+                }
+            });
+
+        });
+    });
+
+
+    function takeScreenshotOnFailure(test) {
+        if (test.state != 'passed') {
+            var path = test.title.replace(/\W+/g, '_').toLowerCase() + '.png';
+            YaddaHtmlRep.currentScenarioScreenshot = path;
+            webDriver.saveScreenshot(path);
+            agentaJs.narrate(test.title + ' failed', 'error');
+        } else {
+            agentaJs.narrate(test.title + ' passed', 'info');
+        }
+    }
+
+
+}
