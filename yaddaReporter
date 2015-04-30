@@ -72,8 +72,14 @@ YaddaHtmlReporter.prototype.onStep = function(scenario){
 YaddaHtmlReporter.prototype.onAfterEach = function(currentTest){
     this.currentStatus = currentTest.state;
 
+    if(currentTest.state == 'failed'){
+        this.error = currentTest.err.message;
+    }
+
+    var currentScenarioName = this.currentScenarioName;
+
     var foundScenario = _.find(this.executedScenarios, function (scenario) {
-        return scenario.name == this.currentScenarioName;
+        return scenario.name == currentScenarioName;
     });
     if (foundScenario) {
         var existingSteps = foundScenario.steps || [];
@@ -86,6 +92,8 @@ YaddaHtmlReporter.prototype.onAfterEach = function(currentTest){
             name: this.currentScenarioName,
             status: this.currentStatus,
             tags: this.currentScenarioTags,
+            screenshot: this.currentScenarioScreenshot,
+            error: this.error,
             steps: existingSteps
         })
     } else {
@@ -94,6 +102,7 @@ YaddaHtmlReporter.prototype.onAfterEach = function(currentTest){
             status: this.currentStatus,
             tags: this.currentScenarioTags,
             screenshot: this.currentScenarioScreenshot,
+            error: this.error,
             steps: [currentTest.title]
         })
     }
@@ -103,6 +112,8 @@ YaddaHtmlReporter.prototype.onAfterEach = function(currentTest){
         status: currentTest.state
     });
 };
+
+
 
 YaddaHtmlReporter.prototype.onAfter = function(){
     this.executedFeatures++;
@@ -145,19 +156,17 @@ YaddaHtmlReporter.prototype.onAfter = function(){
 };
 
 YaddaHtmlReporter.prototype.yaddaToJson = function(file, features, cb){
-        var self = this;
         require('jsonfile').writeFile(file, features, function(err){
             if(err){
-                self.narrate(err,'error');
+                console.log(err);
                 cb(err);
             } else {
-                self.narrate('Successfully saved features in ' + file, 'info');
+                console.log('Successfully saved features in ' + file, 'info');
                 cb();
             }
         });
 };
 
 module.exports = YaddaHtmlReporter;
-
 
 
