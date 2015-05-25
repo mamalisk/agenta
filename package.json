@@ -16,12 +16,7 @@
   "bin" : {
     "agenta.js" : "./bin/agenta.js"
   },
-  "license": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/mamalisk/agenta/blob/master/LICENSE"
-    }
-  ],
+  "license": "MIT",
   "dependencies": {
     "yadda" : "^0.11.4",
     "chai" : "~1.9.0",
